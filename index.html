@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#9eb3c8">
+  <meta name="description" content="Booth 08 — Watt's Inside interactive solar, battery and backup-power demonstration.">
+  <title>Solana Tec — Watt's Inside</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="layout-v7.css">
+  <link rel="stylesheet" href="weather-dynamics.css">
+  <link rel="stylesheet" href="house-dynamics.css">
+  <link rel="stylesheet" href="system-states.css">
+  <link rel="stylesheet" href="display-adapter.css">
+</head>
+<body>
+  <div class="experience" id="experience" data-weather="sunny" data-system="full" data-program="atap" data-scenario="sunny">
+    <div class="weather" id="weatherSystem" aria-hidden="true">
+      <div class="weather-plate weather-plate-a is-active"></div>
+      <div class="weather-plate weather-plate-b"></div>
+      <div class="storm-cloud-bank storm-cloud-bank-far"></div>
+      <div class="storm-cloud-bank storm-cloud-bank-near"></div>
+      <div class="sun-atmosphere"><i></i><b></b></div>
+      <div class="moon-atmosphere"><i></i></div>
+      <div class="night-stars"></div>
+      <canvas class="weather-particles" id="weatherParticles"></canvas>
+      <div class="lightning-flash"></div>
+      <div class="weather-grade"></div>
+      <div class="weather-vignette"></div>
+    </div>
+
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/solana-tec-logo-transparent-v2.png?v=generated-final" alt="Solana Tec">
+        <span class="brand-divider" aria-hidden="true"></span>
+        <strong>BOOTH 08 · WATT’S INSIDE</strong>
+      </div>
+      <div class="utilities">
+        <button class="utility-button day-toggle" id="dayToggle" type="button" aria-pressed="false">
+          <span class="celestial-icon sun-icon" id="dayToggleIcon" aria-hidden="true"></span><b id="dayToggleLabel">Day</b><span class="chevron">▾</span>
+        </button>
+        <button class="utility-button lamp-button" id="lampButton" type="button" aria-label="Connect demonstration lamp">
+          <svg class="lamp-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 2v5M16 2v5M6 7h12v4a6 6 0 0 1-12 0V7ZM12 17v5"></path>
+          </svg>
+          <span id="lampLabel">Lamp</span>
+        </button>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
+          <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+        </div>
+        <button class="utility-button icon-button" id="resetButton" type="button" aria-label="Reset experience" title="Reset">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11a8 8 0 1 0 2.3-5.7L4 8"></path><path d="M4 3v5h5"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="visual-area" aria-label="Interactive solar power flow">
+        <div class="visual-stage">
+          <div class="source-pill source-solar" aria-label="Solar PV source">
+            <svg viewBox="0 0 56 44" aria-hidden="true">
+              <path d="M9 30 15 8h32l-5 22H9Z"></path>
+              <path d="M14 19h30M25 8l-4 22M37 8l-4 22M27 30v7M18 37h18"></path>
+            </svg>
+            <span id="solarSourceLabel">Solar PV</span>
+          </div>
+
+          <div class="source-pill source-grid" aria-label="TNB grid source">
+            <svg viewBox="0 0 52 52" aria-hidden="true">
+              <path d="m26 3-12 46M26 3l12 46M18 34h16M20 25h12M9 15h34M17 49l18-15M35 49 17 34"></path>
+            </svg>
+            <span id="gridSourceLabel">TNB Grid</span>
+          </div>
+
+          <svg class="wiring dynamic-wiring" id="wiringSvg" aria-hidden="true">
+            <defs>
+              <filter id="wireGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+              </filter>
+              <filter id="energyAura" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="6" result="auraBlur"></feGaussianBlur>
+                <feMerge><feMergeNode in="auraBlur"></feMergeNode></feMerge>
+              </filter>
+              <filter id="packetGlow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="packetBlur"></feGaussianBlur>
+                <feMerge><feMergeNode in="packetBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+              </filter>
+            </defs>
+
+            <g class="wire-bases">
+              <path id="baseSolar"></path>
+              <path id="baseGrid"></path>
+              <path id="baseOnGrid"></path>
+              <path id="baseSourceA" class="full-base"></path>
+              <path id="baseAtsOut" class="full-base"></path>
+              <path id="baseDirect" class="direct-base"></path>
+              <path id="baseHome"></path>
+              <path id="baseBattery" class="full-base"></path>
+              <path id="baseBackup" class="full-base"></path>
+            </g>
+
+            <g class="wire-energy-auras">
+              <path id="auraSolar" class="energy-aura"></path>
+              <path id="auraGridIn" class="energy-aura"></path>
+              <path id="auraGridOut" class="energy-aura"></path>
+              <path id="auraOnGrid" class="energy-aura"></path>
+              <path id="auraSourceA" class="energy-aura"></path>
+              <path id="auraAtsOut" class="energy-aura"></path>
+              <path id="auraDirect" class="energy-aura"></path>
+              <path id="auraHome" class="energy-aura"></path>
+              <path id="auraBatteryCharge" class="energy-aura"></path>
+              <path id="auraBatterySupply" class="energy-aura"></path>
+              <path id="auraBackup" class="energy-aura"></path>
+            </g>
+
+            <g class="wire-energy-cores">
+              <path id="coreSolar" class="energy-core"></path>
+              <path id="coreGridIn" class="energy-core"></path>
+              <path id="coreGridOut" class="energy-core"></path>
+              <path id="coreOnGrid" class="energy-core"></path>
+              <path id="coreSourceA" class="energy-core"></path>
+              <path id="coreAtsOut" class="energy-core"></path>
+              <path id="coreDirect" class="energy-core"></path>
+              <path id="coreHome" class="energy-core"></path>
+              <path id="coreBatteryCharge" class="energy-core"></path>
+              <path id="coreBatterySupply" class="energy-core"></path>
+              <path id="coreBackup" class="energy-core"></path>
+            </g>
+
+            <g class="wire-flows">
+              <path id="flowSolar" class="flow solar-flow"></path>
+              <path id="flowGridIn" class="flow grid-flow"></path>
+              <path id="flowGridOut" class="flow grid-flow reverse"></path>
+              <path id="flowOnGrid" class="flow solar-flow"></path>
+              <path id="flowSourceA" class="flow grid-flow"></path>
+              <path id="flowAtsOut" class="flow home-flow"></path>
+              <path id="flowDirect" class="flow home-flow"></path>
+              <path id="flowHome" class="flow home-flow"></path>
+              <path id="flowBatteryCharge" class="flow battery-flow"></path>
+              <path id="flowBatterySupply" class="flow battery-flow reverse"></path>
+              <path id="flowBackup" class="flow battery-flow"></path>
+            </g>
+            <circle id="sourceJunction" r="8"></circle>
+            <circle id="batteryJunction" r="8"></circle>
+          </svg>
+
+          <div class="grid-breaker" id="gridBreaker" role="img" aria-label="C32 2P grid protection breaker">
+            <small>C32 2P</small>
+            <i aria-hidden="true"></i>
+          </div>
+
+          <article class="device inverter" id="inverter">
+            <span class="device-side-label" id="inverterLabel">HYBRID<br>INVERTER</span>
+            <img class="component-image inverter-image" src="assets/inverter-v3.png" alt="Solis hybrid inverter">
+            <div class="solis-mark"><i aria-hidden="true"></i><span>solis</span></div>
+          </article>
+
+          <div class="battery-stack" id="batteryStack">
+            <article class="battery-unit">
+              <img class="component-image battery-shell" src="assets/battery-v3.png" alt="Pylontech home battery">
+              <div class="battery-display">
+                <div class="battery-meter"><i></i></div>
+                <strong class="battery-percent">71%</strong>
+                <span class="battery-state">STANDBY</span>
+              </div>
+              <small>PYLONTECH</small>
+              <div class="battery-feet"><i></i><i></i></div>
+            </article>
+            <article class="battery-unit">
+              <img class="component-image battery-shell" src="assets/battery-v3.png" alt="Pylontech home battery">
+              <div class="battery-display">
+                <div class="battery-meter"><i></i></div>
+                <strong class="battery-percent">71%</strong>
+                <span class="battery-state">STANDBY</span>
+              </div>
+              <small>PYLONTECH</small>
+              <div class="battery-feet"><i></i><i></i></div>
+            </article>
+            <div class="availability-note" id="availabilityNote"></div>
+          </div>
+
+          <article class="device ats" id="atsDevice" data-source="a">
+            <span class="device-label">ATS</span>
+            <img class="component-image ats-image" src="assets/ats-v3.png" alt="Automatic transfer switch">
+            <div class="ats-panel" role="img" aria-label="GEYA automatic transfer switch showing Source A and Source B">
+              <div class="ats-branding">
+                <strong>GEYA</strong>
+                <small>AUTO TRANSFER SWITCH</small>
+              </div>
+              <div class="ats-source-list" aria-hidden="true">
+                <span class="ats-source ats-source-a"><b>A</b><i></i><em id="atsSourceAText">TNB Grid</em></span>
+                <span class="ats-source ats-source-b"><b>B</b><i></i><em id="atsSourceBText">Solis Backup</em></span>
+              </div>
+              <div class="ats-selector" aria-hidden="true">
+                <b class="selector-a">A</b><b class="selector-b">B</b>
+                <div class="ats-dial"><div class="ats-handle" id="atsHandle"></div></div>
+              </div>
+              <span class="ats-live-source" id="atsSourceLabel">SOURCE A · NORMAL</span>
+            </div>
+          </article>
+
+          <article class="device distribution" id="distributionDevice">
+            <span class="device-label" id="distributionLabel">DISTRIBUTION<br>BOARD</span>
+            <img class="component-image distribution-image" src="assets/distribution-v3.png" alt="Distribution board">
+          </article>
+
+          <article class="home-module" id="homeModule" aria-label="Two-storey home showing the essential household loads">
+            <div class="house-visual">
+              <img class="house-shell" src="assets/house-two-storey-v4.png" alt="Open two-storey home with an upstairs bedroom and a downstairs living room">
+              <div class="room-illumination bedroom-illumination" aria-hidden="true"></div>
+              <div class="room-illumination living-illumination" aria-hidden="true"></div>
+              <div class="floor-light bedroom-light" aria-hidden="true"></div>
+              <div class="floor-light living-light" aria-hidden="true"></div>
+              <div class="tv-screen" aria-hidden="true"><i></i><b></b></div>
+              <div class="fan-assembly" id="standingFan" aria-hidden="true">
+                <img class="fan-body" src="assets/fan-body-v3.png" alt="">
+                <img class="fan-rotor" src="assets/fan-rotor-v3.png" alt="">
+              </div>
+              <div class="floor-shade bedroom-shade" aria-hidden="true"></div>
+              <div class="floor-shade living-shade" aria-hidden="true"></div>
+            </div>
+          </article>
+
+          <div class="stage-summary">
+            <section class="info-card" aria-live="polite">
+              <div class="info-icon" id="infoIcon" aria-hidden="true"></div>
+              <div class="info-copy">
+                <span class="info-eyebrow" id="infoEyebrow">LIVE POWER FLOW</span>
+                <h3 id="infoTitle">Solar &gt; Load</h3>
+                <p id="infoText">Free sunlight powers the home first. Extra solar charges the batteries, then the surplus is exported to TNB.</p>
+                <div class="energy-summary" id="energySummary">
+                  <div><span id="homePoweredLabel">Home is powered by</span><div class="energy-bar" id="homeEnergyBar"></div></div>
+                  <div><span id="solarGoesLabel">Solar goes to</span><div class="energy-bar" id="solarEnergyBar"></div></div>
+                </div>
+              </div>
+              <div class="power-cut-banner" id="powerCutBanner" role="status">
+                <i aria-hidden="true">ϟ</i><strong id="powerCutLabel">POWER CUT</strong>
+              </div>
+              <div class="legend" aria-label="Energy flow legend">
+                <span><i class="solar-dot"></i><b id="legendSolar">SOLAR</b></span>
+                <span><i class="battery-dot"></i><b id="legendBattery">BATTERY</b></span>
+                <span><i class="grid-dot"></i><b id="legendGrid">GRID</b></span>
+                <span><i class="home-dot"></i><b id="legendHome">HOME</b></span>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+        <p class="panel-kicker" id="panelKicker">BOOTH 08 EXPERIENCE</p>
+        <h2>Watt’s Inside</h2>
+        <p class="panel-intro" id="panelIntro">Follow the power from sunlight to storage, grid and home.</p>
+        <div class="panel-rule"></div>
+
+        <section class="control-section">
+          <h3 id="chooseSystemLabel">CHOOSE YOUR SYSTEM</h3>
+          <div class="system-options" role="radiogroup" aria-label="System configuration">
+            <button type="button" class="system-card" data-system="ongrid" role="radio" aria-checked="false">
+              <span class="system-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M5 20h22L24 8H8L5 20ZM10 12h12M14 8l-2 12M18 8l2 12M16 20v6M11 26h10"></path></svg>
+              </span>
+              <span><strong id="systemOnGrid">On-grid</strong><small id="systemOnGridSub">Solar only</small></span>
+              <i class="radio-mark" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="system-card" data-system="hybrid" role="radio" aria-checked="false">
+              <span class="system-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><rect x="9" y="5" width="14" height="22" rx="3"></rect><path d="m17 9-5 8h4l-2 7 7-10h-4l2-5"></path></svg>
+              </span>
+              <span><strong id="systemHybrid">Hybrid</strong><small id="systemHybridSub">Battery-ready</small></span>
+              <i class="radio-mark" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="system-card active" data-system="full" role="radio" aria-checked="true">
+              <span class="system-icon" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M4 16 16 5l12 11"></path><path d="M7 14v13h18V14"></path><path d="m17 12-5 8h4l-2 6 7-9h-4l2-5"></path></svg>
+              </span>
+              <span><strong id="systemFull">Full backup</strong><small id="systemFullSub">Battery + ATS</small></span>
+              <i class="radio-mark checked" aria-hidden="true">✓</i>
+            </button>
+          </div>
+        </section>
+
+        <div class="program-toggle" role="group" aria-label="Solar programme">
+          <button type="button" data-program="atap" class="active" aria-pressed="true">SOLAR ATAP</button>
+          <button type="button" data-program="selco" aria-pressed="false">SELCO</button>
+        </div>
+
+        <section class="control-section scenario-section">
+          <h3 id="tryScenarioLabel">TRY A SCENARIO</h3>
+          <div class="scenario-grid" id="scenarioGrid"></div>
+        </section>
+
+      </aside>
+    </main>
+  </div>
+  <script src="display-adapter.js"></script>
+  <script src="weather-dynamics.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

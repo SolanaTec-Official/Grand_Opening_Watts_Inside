@@ -1,0 +1,280 @@
+/*
+ * Watt's Inside — two-storey home dynamics
+ * -----------------------------------------
+ * This file owns only the house presentation. The generated shell contains
+ * static furniture; CSS supplies every live state so lighting, television,
+ * fan and blackout behaviour can be tuned without regenerating the artwork.
+ */
+
+.home-module {
+  z-index: 7;
+  pointer-events: none;
+  filter: none;
+}
+
+.house-visual {
+  /* Measured from the 1199 × 1312 source asset: room opening x=156..1046. */
+  --room-left: 13%;
+  --room-width: 74.25%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: 1199 / 1312;
+  transform: translate(-50%, -50%);
+  isolation: isolate;
+}
+
+.house-shell {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 15px 15px rgba(3, 24, 48, .24));
+}
+
+/* Gentle ambient room washes sit above the static render. */
+.room-illumination {
+  position: absolute;
+  z-index: 2;
+  left: var(--room-left);
+  width: var(--room-width);
+  overflow: hidden;
+  border-radius: 2px;
+  opacity: .72;
+  mix-blend-mode: screen;
+  transition: opacity .65s ease, filter .65s ease;
+}
+
+.bedroom-illumination {
+  top: 25.8%;
+  height: 33.1%;
+  background:
+    radial-gradient(ellipse at 50% 8%, rgba(255, 244, 195, .5), rgba(255, 213, 135, .16) 44%, transparent 76%),
+    linear-gradient(to bottom, rgba(255, 248, 219, .12), transparent 75%);
+}
+
+.living-illumination {
+  top: 62.2%;
+  height: 35.2%;
+  background:
+    radial-gradient(ellipse at 50% 8%, rgba(255, 241, 184, .52), rgba(255, 207, 120, .14) 45%, transparent 78%),
+    linear-gradient(to bottom, rgba(255, 248, 219, .12), transparent 78%);
+}
+
+.floor-light {
+  position: absolute;
+  z-index: 4;
+  left: 41.6%;
+  width: 17.5%;
+  height: .9%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fff7d5, #fffef2 48%, #ffe39c);
+  box-shadow:
+    0 0 4px 2px rgba(255, 248, 213, .95),
+    0 6px 17px 6px rgba(255, 210, 119, .42),
+    0 18px 34px 10px rgba(255, 193, 83, .18);
+  animation: houseLightBreathe 3.4s ease-in-out infinite;
+  transition: opacity .45s ease, box-shadow .45s ease;
+}
+
+.bedroom-light { top: 25.9%; }
+.living-light { top: 62.35%; }
+
+/* The black television in the render becomes a live display. */
+.tv-screen {
+  position: absolute;
+  z-index: 5;
+  /* Inset three source pixels inside the measured x=487..740, y=917..1056 bezel. */
+  left: 40.87%;
+  top: 70.12%;
+  width: 20.68%;
+  height: 10.21%;
+  overflow: hidden;
+  border-radius: 1.5%;
+  background:
+    radial-gradient(circle at 70% 28%, rgba(255, 228, 113, .86) 0 5%, transparent 6%),
+    linear-gradient(155deg, #113c74 0 31%, #2495cc 32% 55%, #3c976a 56% 77%, #183a37 78% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15), 0 0 9px rgba(52, 165, 255, .24);
+  opacity: .96;
+  transform: translateZ(0);
+  transition: opacity .45s ease, filter .45s ease, background .45s ease;
+  animation: tvPictureShift 11s ease-in-out infinite alternate;
+}
+
+.tv-screen::before {
+  content: "";
+  position: absolute;
+  inset: -12% -20%;
+  background:
+    linear-gradient(112deg, transparent 0 24%, rgba(255,255,255,.16) 25% 27%, transparent 28% 61%, rgba(130,232,255,.12) 62% 65%, transparent 66%),
+    radial-gradient(ellipse at 25% 76%, rgba(79, 196, 119, .7), transparent 42%);
+  animation: tvPan 7s linear infinite;
+}
+
+.tv-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(255,255,255,.045) 0 1px, transparent 1px 3px);
+  opacity: .6;
+  animation: tvScan 3s linear infinite;
+}
+
+.tv-screen i {
+  position: absolute;
+  z-index: 2;
+  left: 6%;
+  right: 6%;
+  bottom: 9%;
+  height: 5%;
+  border-radius: 99px;
+  background: rgba(235, 248, 255, .82);
+  box-shadow: 0 0 6px rgba(159, 226, 255, .7);
+  animation: tvTicker 5.6s ease-in-out infinite;
+}
+
+.tv-screen b {
+  position: absolute;
+  z-index: 3;
+  right: 3.5%;
+  bottom: 3%;
+  width: 2.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #55eea0;
+  box-shadow: 0 0 5px #55eea0;
+}
+
+/* Realistic standing fan, now correctly contained in the lower room. */
+.home-module .fan-assembly {
+  position: absolute;
+  z-index: 5;
+  left: 72.2%;
+  bottom: 3.5%;
+  width: 17.8%;
+  aspect-ratio: 1;
+  transform-origin: 50% 83%;
+  animation: fanOscillate 3.8s ease-in-out infinite;
+  transition: opacity .4s ease, filter .4s ease;
+}
+
+.home-module .fan-body,
+.home-module .fan-rotor {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.home-module .fan-body {
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(25, 34, 43, .2));
+}
+
+.home-module .fan-rotor {
+  z-index: 2;
+  /* The fan-body grille pivot measures x=49.76%, y=25.36%. */
+  left: 27.26%;
+  top: 2.86%;
+  width: 45%;
+  height: 45%;
+  object-fit: contain;
+  transform-origin: center;
+  animation: rotorSpin .55s linear infinite;
+}
+
+/* Per-floor blackout panes preserve the house silhouette while darkening its rooms. */
+.floor-shade {
+  position: absolute;
+  z-index: 8;
+  left: var(--room-left);
+  width: var(--room-width);
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(21, 38, 62, .42), transparent 45%),
+    linear-gradient(145deg, rgba(3, 11, 25, .82), rgba(5, 18, 38, .9));
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, .36);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .7s ease;
+  mix-blend-mode: multiply;
+}
+
+.bedroom-shade { top: 24.25%; height: 34.95%; }
+.living-shade { top: 62.5%; height: 35.6%; }
+
+.home-module.off .floor-shade { opacity: .88; }
+.home-module.off .room-illumination { opacity: 0; }
+.home-module.off .floor-light {
+  opacity: .06;
+  box-shadow: none;
+  animation-play-state: paused;
+}
+.home-module.off .tv-screen {
+  opacity: .18;
+  filter: saturate(0) brightness(.18);
+  background: #02050a;
+  box-shadow: inset 0 0 8px rgba(0,0,0,.95);
+  animation-play-state: paused;
+}
+.home-module.off .tv-screen::before,
+.home-module.off .tv-screen::after,
+.home-module.off .tv-screen i,
+.home-module.off .tv-screen b { opacity: 0; animation-play-state: paused; }
+.home-module.off .fan-assembly {
+  opacity: .22;
+  filter: grayscale(1) brightness(.55);
+  animation-play-state: paused;
+}
+.home-module.off .fan-rotor { animation-play-state: paused; }
+
+@keyframes houseLightBreathe {
+  0%, 100% { opacity: .86; filter: brightness(.96); }
+  50% { opacity: 1; filter: brightness(1.08); }
+}
+
+@keyframes tvPictureShift {
+  0% { background-position: 0 0; filter: saturate(.9) brightness(.92); }
+  45% { background-position: 25% 5%; filter: saturate(1.12) brightness(1.05); }
+  100% { background-position: 60% 0; filter: saturate(.96) brightness(.98); }
+}
+
+@keyframes tvPan {
+  from { transform: translateX(-15%); }
+  to { transform: translateX(18%); }
+}
+
+@keyframes tvScan {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(2px); }
+}
+
+@keyframes tvTicker {
+  0%, 100% { transform: scaleX(.35); transform-origin: left; opacity: .45; }
+  50% { transform: scaleX(.92); transform-origin: left; opacity: .9; }
+}
+
+@media (max-width: 1450px), (max-height: 800px) {
+  .house-visual { width: 96%; }
+  .home-module .fan-assembly { width: 18.5%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floor-light,
+  .tv-screen,
+  .tv-screen::before,
+  .tv-screen::after,
+  .tv-screen i,
+  .home-module .fan-assembly,
+  .home-module .fan-rotor { animation: none !important; }
+}

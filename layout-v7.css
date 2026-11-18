@@ -1,0 +1,1559 @@
+/*
+ * Watt's Inside — editable stage geometry
+ * ---------------------------------------
+ * Change the component variables below to move or resize equipment. The
+ * JavaScript wiring engine reads the finished on-screen boxes and reconnects
+ * every cable automatically, so no SVG coordinates need to be edited.
+ */
+
+.visual-stage {
+  --left-assembly-center: 15.85%;
+  --solar-x: var(--left-assembly-center);
+  --grid-x: 29.1%;
+
+  --inverter-x: calc(var(--left-assembly-center) - 11.55%);
+  --inverter-y: 21.5%;
+  --inverter-w: 22%;
+  --inverter-h: 40%;
+
+  --battery-x: 1.5%;
+  --battery-bottom: -4.3%;
+  --battery-w: 28.7%;
+  --battery-h: 33.5%;
+
+  --ats-x: 39.3%;
+  --ats-y: 40.5%;
+  --ats-w: 13.1%;
+  --ats-h: 18%;
+
+  --db-x: 54%;
+  --db-y: 40.5%;
+  --db-w: 13.5%;
+  --db-h: 18%;
+
+  --house-x: 68%;
+  --house-y: 16%;
+  --house-w: 31.5%;
+  --house-h: 58%;
+}
+
+/* One source of truth for component placement. */
+.source-solar {
+  left: var(--solar-x);
+  transform: translateX(-50%);
+}
+.source-grid { left: var(--grid-x); }
+
+.source-pill {
+  height: 45px;
+  min-width: 155px;
+  padding: 0 17px;
+  gap: 10px;
+  border: 1px solid rgba(10, 49, 95, .2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 8px 22px rgba(14, 44, 66, .07);
+  backdrop-filter: blur(12px);
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-optical-sizing: auto;
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.source-pill svg {
+  width: 31px;
+  height: 30px;
+  stroke-width: 2;
+}
+
+/* Header branding and soft translucent controls. */
+.brand img {
+  width: 240px;
+  max-height: 52px;
+  object-fit: contain;
+  filter: none;
+}
+
+.brand strong {
+  color: #ff6f0f;
+  text-shadow: 0 1px 7px rgba(255, 255, 255, .68);
+}
+
+.utilities {
+  gap: 14px;
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.utilities > .utility-button,
+.language-switch {
+  border: 1px solid rgba(10, 49, 95, .2);
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 8px 22px rgba(14, 44, 66, .07);
+  backdrop-filter: blur(12px);
+}
+
+.utility-button {
+  height: 45px;
+  border-radius: 999px;
+  padding-inline: 16px;
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.icon-button {
+  width: 45px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.icon-button svg { width: 20px; height: 20px; }
+
+.language-switch {
+  min-height: 42px;
+  padding: 3px;
+  border-radius: 999px;
+}
+
+.language-switch button {
+  min-width: 58px;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 760;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.language-switch button.active {
+  background: #07264d;
+  color: #fff;
+  box-shadow: 0 5px 13px rgba(7, 38, 77, .17);
+}
+
+.day-toggle { min-width: 126px; }
+.lamp-button { min-width: 116px; }
+
+.lamp-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.lamp-button .lamp-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lamp-button i { display: none; }
+
+.celestial-icon {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.sun-icon::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffd35a, #ff8a16);
+  box-shadow: 0 0 9px rgba(255, 153, 26, .5);
+  animation: sunPulse 2.1s ease-in-out infinite;
+}
+
+.sun-icon::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #ff981d;
+  box-shadow: 0 -9px #ff981d, 6.4px -6.4px #ff981d, 9px 0 #ff981d,
+              6.4px 6.4px #ff981d, 0 9px #ff981d, -6.4px 6.4px #ff981d,
+              -9px 0 #ff981d, -6.4px -6.4px #ff981d;
+  animation: sunRotate 7s linear infinite;
+}
+
+.moon-icon::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  box-shadow: -5px 3px 0 0 #ffd66b;
+  filter: drop-shadow(0 0 5px rgba(255, 214, 107, .38));
+  animation: moonFloat 2.7s ease-in-out infinite;
+}
+
+@keyframes sunRotate { to { transform: rotate(360deg); } }
+@keyframes sunPulse { 50% { transform: scale(1.12); box-shadow: 0 0 13px rgba(255, 153, 26, .62); } }
+@keyframes moonFloat { 50% { transform: translateY(-2px) rotate(-4deg); } }
+
+.inverter {
+  left: var(--inverter-x);
+  top: var(--inverter-y);
+  width: var(--inverter-w);
+  height: var(--inverter-h);
+}
+
+/* Preserve the original inverter face and its single factory seam, while
+   removing only the five black cable glands below the casing. */
+.inverter-image {
+  /* The image is object-fit inside a taller stage box.  This percentage also
+     removes that fitted lower padding, then stops at the white casing edge. */
+  clip-path: inset(0 0 13.5% 0);
+}
+
+.inverter::before,
+.inverter::after {
+  content: none !important;
+}
+
+.battery-stack {
+  left: var(--battery-x);
+  top: auto;
+  bottom: var(--battery-bottom);
+  width: var(--battery-w);
+  height: var(--battery-h);
+}
+
+.ats {
+  left: var(--ats-x);
+  top: var(--ats-y);
+  width: var(--ats-w);
+  height: var(--ats-h);
+}
+
+/* Functional ATS face: Source A in normal operation, Source B on backup. */
+.ats-image {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ats-panel {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  padding: 10px 9px 8px;
+  border: 1px solid rgba(79, 94, 111, .42);
+  border-radius: 11px;
+  background:
+    radial-gradient(circle at 8px 8px, #788593 0 1.8px, #dfe5ea 2px 3.2px, transparent 3.4px),
+    radial-gradient(circle at calc(100% - 8px) 8px, #788593 0 1.8px, #dfe5ea 2px 3.2px, transparent 3.4px),
+    radial-gradient(circle at 8px calc(100% - 8px), #788593 0 1.8px, #dfe5ea 2px 3.2px, transparent 3.4px),
+    radial-gradient(circle at calc(100% - 8px) calc(100% - 8px), #788593 0 1.8px, #dfe5ea 2px 3.2px, transparent 3.4px),
+    linear-gradient(145deg, #fafafa 0%, #e9ecee 52%, #d9dee2 100%);
+  box-shadow:
+    0 10px 17px rgba(8, 34, 62, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .96),
+    inset 0 -2px 4px rgba(72, 86, 99, .12);
+  color: #203552;
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+}
+
+.ats-panel::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 6px;
+  border: 1px solid rgba(72, 87, 102, .15);
+  border-radius: 7px;
+  pointer-events: none;
+}
+
+.ats-panel::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 1px;
+  border-radius: 10px;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, rgba(50, 65, 80, .018) 1px 2px);
+  pointer-events: none;
+}
+
+.ats-branding {
+  position: relative;
+  z-index: 2;
+  width: 62%;
+  line-height: 1;
+}
+
+.ats-branding strong,
+.ats-branding small { display: block; }
+
+.ats-branding strong {
+  font-size: clamp(10px, .72vw, 13px);
+  font-weight: 850;
+  letter-spacing: .02em;
+}
+
+.ats-branding small {
+  margin-top: 2px;
+  color: #5b6b7b;
+  font-size: clamp(5.5px, .41vw, 7.5px);
+  font-weight: 760;
+  letter-spacing: .015em;
+}
+
+.ats-source-list {
+  position: absolute;
+  z-index: 2;
+  left: 9px;
+  top: 38%;
+  width: 59%;
+  display: grid;
+  gap: 8px;
+}
+
+.ats-source {
+  display: grid;
+  grid-template-columns: 9px 10px minmax(0, 1fr);
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  font-style: normal;
+  line-height: 1;
+}
+
+.ats-source b {
+  font-size: clamp(7px, .48vw, 9px);
+  font-weight: 900;
+}
+
+.ats-source i {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(21, 39, 57, .32);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #65768a 0 13%, #24344a 34% 76%, #111d2b 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .34), 0 1px 2px rgba(8, 23, 37, .2);
+  transition: background .35s ease, box-shadow .35s ease, transform .35s ease;
+}
+
+.ats-source em {
+  overflow: hidden;
+  color: #40566d;
+  font-size: clamp(6.2px, .43vw, 8px);
+  font-style: normal;
+  font-weight: 760;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ats[data-source="a"] .ats-source-a i {
+  background: radial-gradient(circle at 35% 30%, #c8ffe5 0 14%, #22cf7e 32% 72%, #087446 100%);
+  box-shadow: 0 0 8px rgba(32, 199, 122, .72);
+  transform: scale(1.08);
+}
+
+.ats[data-source="b"] .ats-source-b i {
+  background: radial-gradient(circle at 35% 30%, #d5ecff 0 14%, #2d91fa 32% 72%, #15549a 100%);
+  box-shadow: 0 0 8px rgba(43, 141, 247, .78);
+  transform: scale(1.08);
+}
+
+.ats[data-source="off"] .ats-source-a i {
+  background: radial-gradient(circle at 35% 30%, #ffd2d7 0 14%, #ff4053 32% 72%, #9e1227 100%);
+  box-shadow: 0 0 7px rgba(255, 64, 83, .62);
+}
+
+.ats-selector {
+  position: absolute;
+  z-index: 3;
+  top: 14%;
+  right: 3%;
+  width: 36%;
+  height: 69%;
+}
+
+.ats-selector > b {
+  position: absolute;
+  top: 0;
+  color: #30465f;
+  font-size: clamp(6px, .42vw, 8px);
+  font-weight: 900;
+}
+
+.selector-a { left: 0; }
+.selector-b { right: 0; }
+
+.ats-dial {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(58, 77, 99, .4);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 37% 31%, rgba(255, 255, 255, .92) 0 8%, transparent 9%),
+    conic-gradient(from 15deg, #9ba6b0, #eef1f4 18%, #aab5bf 42%, #f5f7f8 64%, #919da8 82%, #dce2e7);
+  box-shadow: inset 0 2px 4px rgba(18, 42, 65, .28), inset 0 -1px 2px rgba(255, 255, 255, .8), 0 3px 6px rgba(12, 34, 55, .22);
+  transform: translate(-50%, -50%);
+}
+
+.ats-dial::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(58, 77, 99, .22);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f5f7f8, #bcc6cf 68%, #8f9aa5 100%);
+}
+
+.ats-handle {
+  position: absolute;
+  z-index: 2;
+  display: block !important;
+  left: 50%;
+  right: auto;
+  top: 50%;
+  width: 13px;
+  height: 30px;
+  margin-left: -6.5px;
+  margin-top: -15px;
+  border: 1px solid rgba(117, 15, 30, .38);
+  border-radius: 7px;
+  background: linear-gradient(90deg, #b8162d 0%, #f34858 27%, #cf1f38 65%, #8f1025 100%);
+  box-shadow: 0 4px 7px rgba(83, 9, 23, .38), inset 2px 0 2px rgba(255, 255, 255, .42), inset -2px 0 2px rgba(70, 4, 16, .22);
+  transform: rotate(-38deg);
+  transform-origin: 50% 50%;
+  transition: transform .55s cubic-bezier(.2, .85, .25, 1.2), box-shadow .35s ease;
+}
+
+.ats-handle::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 3px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .36);
+}
+
+.ats-handle::before { content: none !important; }
+
+.ats[data-source="b"] .ats-handle {
+  box-shadow: 0 5px 9px rgba(116, 15, 31, .34), 0 0 11px rgba(43, 141, 247, .42), inset 2px 0 3px rgba(255, 255, 255, .36);
+}
+
+.ats-live-source {
+  position: absolute;
+  z-index: 3;
+  left: 9px;
+  bottom: 7px;
+  min-width: 58%;
+  padding: 4px 6px;
+  border: 1px solid rgba(44, 68, 92, .14);
+  border-radius: 5px;
+  background: rgba(215, 223, 230, .92);
+  color: #27435f;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  font-size: clamp(5.8px, .4vw, 7.5px);
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: .025em;
+  text-align: center;
+  white-space: nowrap;
+  transition: color .3s ease, background .3s ease, border-color .3s ease;
+}
+
+.ats[data-source="a"] .ats-live-source { color: #087446; background: rgba(213, 245, 229, .94); border-color: rgba(8, 116, 70, .2); }
+.ats[data-source="b"] .ats-live-source { color: #15549a; background: rgba(218, 237, 255, .96); border-color: rgba(21, 84, 154, .2); }
+.ats[data-source="off"] .ats-live-source { color: #9e1227; background: rgba(255, 226, 230, .96); border-color: rgba(158, 18, 39, .2); }
+
+/* Match the compact source-label material used above the solar and grid. */
+.ats .device-label,
+.distribution .device-label {
+  z-index: 7;
+  left: 50%;
+  right: auto;
+  top: -37%;
+  width: max-content;
+  height: 36px;
+  min-width: 98px;
+  padding: 0 12px;
+  border: 1px solid rgba(10, 49, 95, .2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 8px 22px rgba(14, 44, 66, .07);
+  backdrop-filter: blur(12px);
+  color: var(--navy);
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0;
+  line-height: 1.02;
+  text-align: center;
+  text-shadow: none;
+  transform: translateX(-50%);
+}
+
+.distribution .device-label {
+  min-width: 146px;
+}
+
+.distribution {
+  left: var(--db-x);
+  top: var(--db-y);
+  width: var(--db-w);
+  height: var(--db-h);
+}
+
+.home-module {
+  left: var(--house-x);
+  top: var(--house-y);
+  width: var(--house-w);
+  height: var(--house-h);
+}
+
+.fan-assembly {
+  left: 36%;
+  bottom: 23%;
+  width: 28%;
+}
+
+/* V7 replaces every bitmap/fixed-coordinate cable with live SVG routes. */
+.wire-art { display: none !important; }
+
+.dynamic-wiring {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dynamic-wiring .wire-bases {
+  display: block !important;
+}
+
+.dynamic-wiring .wire-bases path {
+  display: block;
+  fill: none;
+  stroke: #dce7ef;
+  stroke-width: clamp(10px, .76vw, 13px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .84;
+  filter: drop-shadow(0 3px 4px rgba(10, 37, 63, .2)) drop-shadow(0 1px 0 rgba(255, 255, 255, .72));
+  transition: opacity .35s ease;
+}
+
+/* Labels are printed on the equipment face instead of floating beside it. */
+.inverter .device-side-label {
+  z-index: 7;
+  left: 5.2%;
+  right: .2%;
+  top: 72%;
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #4d5d6d;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: clamp(8px, .64vw, 11px);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .72);
+  white-space: nowrap;
+}
+
+.battery-unit > small {
+  z-index: 7;
+  top: 63%;
+  bottom: auto;
+  left: 12.1%;
+  right: 7.2%;
+  color: #596674;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: clamp(7px, .48vw, 9px);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .78);
+  white-space: nowrap;
+}
+
+/* Keep the state-of-charge bar fully inside the black display window. */
+.battery-display {
+  left: 13.2%;
+  right: 8.3%;
+  top: 7.5%;
+  height: 28.4%;
+  overflow: hidden;
+}
+
+.battery-meter {
+  left: 7.5%;
+  top: 27%;
+  bottom: 29%;
+  width: 11.5%;
+  border-radius: 6px;
+}
+
+.battery-percent,
+.battery-state {
+  margin-left: 16%;
+}
+
+.battery-percent {
+  font-size: clamp(18px, 1.38vw, 27px);
+  line-height: .95;
+}
+
+.battery-state {
+  margin-top: 1px;
+  font-size: clamp(7px, .48vw, 9px);
+  line-height: 1;
+}
+
+/* Hardware stays on the front plane; cables pass cleanly behind its casing. */
+.source-pill,
+.device,
+.battery-stack,
+.home-module {
+  z-index: 5;
+}
+
+.grid-breaker {
+  position: absolute;
+  z-index: 6;
+  width: 32px;
+  height: 66px;
+  padding: 7px 5px 6px;
+  border: 1px solid rgba(116, 137, 158, .34);
+  border-radius: 6px;
+  background: linear-gradient(145deg, #f9fbfd, #dce4ed);
+  box-shadow: 0 7px 14px rgba(7, 31, 58, .2), inset 0 0 0 1px rgba(255, 255, 255, .7);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.grid-breaker small {
+  display: block;
+  margin: 0 -3px 7px;
+  color: #304865;
+  font-size: 7px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grid-breaker i {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 32px;
+  margin: auto;
+  border-radius: 3px;
+  background: #b9c6d5;
+  box-shadow: inset 0 0 0 1px rgba(72, 94, 117, .18);
+}
+
+.grid-breaker i::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 4px;
+  height: 9px;
+  border-radius: 2px;
+  background: #08b96a;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .48) inset;
+  transition: top .3s ease, background .3s ease;
+}
+
+.experience[data-scenario="cut"] .grid-breaker i::after {
+  top: 18px;
+  background: #e83e50;
+}
+
+.dynamic-wiring .wire-bases .full-base {
+  stroke: #cbdbea;
+}
+
+.dynamic-wiring .wire-bases .direct-base {
+  display: none;
+}
+
+.dynamic-wiring .energy-aura,
+.dynamic-wiring .energy-core {
+  fill: none;
+  stroke: var(--flow-color, transparent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .42s ease, stroke .35s ease;
+}
+
+.dynamic-wiring .energy-aura {
+  stroke-width: clamp(14px, 1.05vw, 19px);
+  filter: url(#energyAura);
+  mix-blend-mode: screen;
+}
+
+.dynamic-wiring .energy-core {
+  stroke-width: clamp(4px, .34vw, 6px);
+  filter: drop-shadow(0 0 3px var(--flow-color, currentColor)) drop-shadow(0 0 7px var(--flow-color, currentColor));
+}
+
+.dynamic-wiring .energy-aura.active { opacity: .52; }
+.dynamic-wiring .energy-core.active { opacity: .95; }
+.dynamic-wiring .energy-aura.slow { opacity: .32; }
+.dynamic-wiring .energy-core.slow { opacity: .72; }
+
+.dynamic-wiring .flow {
+  fill: none;
+  stroke: color-mix(in srgb, var(--flow-color, #fff) 58%, white);
+  stroke-width: clamp(4px, .32vw, 5.5px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 10 24;
+  opacity: 0;
+  filter: url(#packetGlow) drop-shadow(0 0 4px var(--flow-color, currentColor));
+  transition: opacity .35s ease;
+  animation: energyPackets 1.05s linear infinite;
+}
+
+.dynamic-wiring .flow.active { opacity: 1; }
+.dynamic-wiring .flow.reverse { animation-direction: reverse; }
+.dynamic-wiring .flow.slow { animation-duration: 1.75s; opacity: .82; }
+
+@keyframes energyPackets { to { stroke-dashoffset: -34; } }
+
+.experience[data-system="ongrid"] .dynamic-wiring .full-base,
+.experience[data-system="hybrid"] .dynamic-wiring .full-base {
+  opacity: 0;
+}
+
+.experience[data-system="ongrid"] .dynamic-wiring .direct-base,
+.experience[data-system="hybrid"] .dynamic-wiring .direct-base {
+  display: block;
+}
+
+.experience[data-system="ongrid"] #batteryJunction,
+.experience[data-system="hybrid"] #batteryJunction {
+  opacity: 0;
+}
+
+#sourceJunction,
+#batteryJunction {
+  stroke: rgba(255, 255, 255, .82);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  transition: fill .3s ease, filter .3s ease, opacity .3s ease;
+}
+
+#sourceJunction.active,
+#batteryJunction.active {
+  stroke: #fff;
+  animation: energyJunctionPulse 1.45s ease-in-out infinite;
+}
+
+@keyframes energyJunctionPulse {
+  0%, 100% { stroke-width: 3px; stroke-opacity: .98; }
+  50% { stroke-width: 8px; stroke-opacity: .28; }
+}
+
+.status-capsule {
+  left: 45.2%;
+  top: 24.5%;
+}
+
+.stage-summary {
+  position: absolute;
+  z-index: 8;
+  left: 42%;
+  right: 2.2%;
+  bottom: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.stage-summary .info-card {
+  position: relative;
+  width: 100%;
+  min-height: 190px;
+  margin: 0;
+  padding: 18px 20px 14px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 30px;
+  grid-template-columns: 44px minmax(0, 1fr);
+  column-gap: 13px;
+  row-gap: 10px;
+  background: rgba(255, 250, 242, .98);
+  box-shadow: 0 24px 50px rgba(8, 34, 64, .26);
+  backdrop-filter: blur(18px);
+  color: var(--navy);
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* A compact in-card outage status replaces the oversized stage banner. */
+.stage-summary .power-cut-banner {
+  position: absolute;
+  z-index: 6;
+  top: 17px;
+  right: 19px;
+  left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 132px;
+  padding: 8px 14px 8px 9px;
+  border: 1px solid rgba(255, 255, 255, .68);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff5061, #f4243e);
+  color: #fff;
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(10px, .68vw, 13px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .055em;
+  box-shadow: 0 9px 22px rgba(244, 36, 62, .28);
+  opacity: 0;
+  transform: translateY(-7px) scale(.92);
+  transform-origin: right center;
+  pointer-events: none;
+  transition: opacity .24s ease, transform .32s cubic-bezier(.2,.8,.2,1);
+}
+
+.stage-summary .power-cut-banner i {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(119, 0, 18, .18);
+  color: #fff4a7;
+  font-size: 18px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.experience[data-scenario="cut"] .stage-summary .power-cut-banner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: powerCutBadgePulse 1.35s ease-in-out infinite;
+}
+
+.experience[data-scenario="cut"] .stage-summary .info-copy > p {
+  max-width: calc(100% - 156px);
+}
+
+@keyframes powerCutBadgePulse {
+  0%, 100% {
+    box-shadow: 0 8px 20px rgba(244, 36, 62, .24), 0 0 0 0 rgba(255, 64, 83, .34);
+  }
+  50% {
+    box-shadow: 0 12px 28px rgba(244, 36, 62, .42), 0 0 0 7px rgba(255, 64, 83, 0);
+  }
+}
+
+.stage-summary .info-copy,
+.stage-summary .energy-summary > div {
+  min-width: 0;
+}
+
+.stage-summary .info-icon {
+  width: 44px;
+  height: 44px;
+  align-self: start;
+  font-size: 20px;
+  border: 0;
+  background: var(--accent, var(--orange));
+  color: #fff;
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent, var(--orange)) 24%, transparent);
+}
+
+.stage-summary .info-eyebrow {
+  display: block;
+  margin: 0 0 2px;
+  color: var(--orange);
+  font-size: clamp(8px, .56vw, 10px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .14em;
+}
+
+.stage-summary .info-card h3 {
+  margin: 0 0 4px;
+  font-size: clamp(17px, 1.12vw, 22px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -.018em;
+}
+
+.stage-summary .info-card p {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: clamp(11px, .72vw, 13px);
+  font-weight: 450;
+  line-height: 1.4;
+}
+
+.stage-summary .energy-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.stage-summary .energy-summary > div > span {
+  margin-bottom: 3px;
+  color: #506984;
+  font-size: 10px;
+  font-weight: 760;
+}
+
+.stage-summary .energy-bar {
+  min-height: 21px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stage-summary .energy-segment {
+  min-width: 0;
+  padding: 2px 4px;
+  overflow: hidden;
+  font-size: 8.5px;
+  font-weight: 850;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stage-summary .legend {
+  position: static;
+  grid-column: 1 / -1;
+  width: 100%;
+  justify-content: center;
+  margin-top: 1px;
+  padding: 11px 4px 0;
+  border: 0;
+  border-top: 1px solid rgba(10, 49, 95, .12);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.stage-summary .legend b {
+  color: var(--navy);
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(10px, .68vw, 12px);
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+/* Use the right panel's remaining height for larger, clearer scenario actions. */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.control-panel h2 {
+  font-weight: 850;
+  letter-spacing: -.025em;
+}
+
+.panel-intro { font-weight: 450; }
+.control-section h3 { font-weight: 820; }
+
+.system-options { gap: 10px; }
+
+.system-card {
+  min-height: 64px;
+  border-radius: 16px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(246, 249, 252, .88));
+  box-shadow: 0 6px 14px rgba(8, 39, 76, .055), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+.system-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(105deg, rgba(255, 255, 255, .62), transparent 42%, rgba(37, 136, 245, .05));
+  opacity: .7;
+  pointer-events: none;
+}
+
+.system-card > * { position: relative; z-index: 1; }
+.system-card > .radio-mark {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.system-card:hover { transform: none; }
+.system-card.active {
+  border-color: var(--orange);
+  background: linear-gradient(135deg, #fff9ef, #fff0dc);
+  box-shadow: 0 10px 23px rgba(255, 122, 26, .19), inset 0 1px 0 rgba(255, 255, 255, .95);
+}
+
+.system-icon {
+  background: linear-gradient(145deg, #f4f8fc, #e5eef7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 10px rgba(8, 39, 76, .07);
+  transition: color .22s ease, background .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+
+.system-card:hover .system-icon { transform: none; }
+.system-card.active .system-icon {
+  color: #e9650b;
+  background: linear-gradient(145deg, #fff8ec, #ffe4c3);
+  box-shadow: 0 5px 12px rgba(255, 122, 26, .16), inset 0 1px 0 #fff;
+}
+
+.system-card em { display: none !important; }
+.system-card:focus-visible,
+.scenario-button:focus-visible {
+  outline: 3px solid rgba(37, 136, 245, .42);
+  outline-offset: 2px;
+}
+
+.system-card strong { font-weight: 790; letter-spacing: -.012em; }
+.system-card small { font-weight: 560; }
+
+.program-toggle {
+  flex: 0 0 auto;
+  min-height: 50px;
+  margin: 16px 0;
+  border-radius: 15px;
+}
+
+.program-toggle button { border-radius: 11px; }
+
+.scenario-section {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scenario-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, minmax(62px, 1fr));
+  gap: 10px;
+}
+
+.scenario-button {
+  position: relative;
+  min-height: 62px;
+  padding: 10px 14px;
+  grid-template-columns: 42px minmax(0, 1fr) 28px;
+  gap: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(246, 249, 252, .9));
+  box-shadow: 0 7px 16px rgba(8, 39, 76, .06), inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+.scenario-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 52%);
+  opacity: .45;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+
+.scenario-button::after {
+  content: none;
+}
+
+.scenario-button > * { position: relative; z-index: 2; }
+.scenario-button:hover { transform: none; }
+.scenario-button:hover::before { opacity: .45; }
+.scenario-button.active {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, .98), color-mix(in srgb, var(--accent) 10%, white));
+  box-shadow: 0 12px 25px color-mix(in srgb, var(--accent) 20%, rgba(8, 39, 76, .08));
+}
+.scenario-button.active::before { opacity: 1; }
+
+.scenario-check {
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--accent) 30%, transparent);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(.78);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.scenario-button.active .scenario-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scenario-button .scenario-icon {
+  width: 42px;
+  height: 42px;
+  box-shadow: 0 7px 15px color-mix(in srgb, var(--accent) 28%, transparent), inset 0 1px 0 rgba(255, 255, 255, .24);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.scenario-button:hover .scenario-icon { transform: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .system-card:hover,
+  .scenario-button:hover {
+    transform: translateY(-1px);
+  }
+  .system-card:hover { box-shadow: 0 10px 20px rgba(8, 39, 76, .1); }
+  .scenario-button:hover { box-shadow: 0 10px 21px rgba(8, 39, 76, .1); }
+  .system-card:hover .system-icon,
+  .scenario-button:hover .scenario-icon { transform: scale(1.035); }
+  .scenario-button:hover::before { opacity: .7; }
+}
+
+/* Backup supply only exists on the Full backup system. Keep the option visible
+   as a teaching cue, but clearly unavailable for On-grid and Hybrid. */
+.scenario-button.unavailable,
+.scenario-button:disabled {
+  border: 1.5px dashed #91a7be;
+  background: rgba(235, 242, 249, .7);
+  color: #6f8299;
+  box-shadow: none;
+  cursor: not-allowed;
+  filter: saturate(.45);
+  opacity: .66;
+  transform: none;
+}
+
+.scenario-button.unavailable::before,
+.scenario-button:disabled::before {
+  opacity: 0;
+}
+
+.scenario-button.unavailable .scenario-icon,
+.scenario-button:disabled .scenario-icon {
+  box-shadow: none;
+  opacity: .72;
+  transform: none;
+}
+
+.scenario-button.unavailable .scenario-check,
+.scenario-button:disabled .scenario-check {
+  display: none;
+}
+
+.scenario-button.unavailable small,
+.scenario-button:disabled small {
+  color: #71869f;
+}
+
+.scenario-button strong {
+  font-size: clamp(13px, .9vw, 17px);
+  font-weight: 790;
+  letter-spacing: -.012em;
+}
+
+.scenario-button small {
+  margin-top: 3px;
+  font-size: clamp(9.5px, .65vw, 12px);
+  font-weight: 560;
+}
+
+/* Shared animated scenario language for the selection buttons and summary. */
+.scenario-icon,
+.stage-summary .info-icon {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.scenario-glyph {
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stage-summary .scenario-glyph {
+  width: 23px;
+  height: 23px;
+}
+
+.scenario-sun .icon-rays {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: scenarioSunSpin 8s linear infinite;
+}
+
+.scenario-sun .icon-core {
+  fill: currentColor;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: scenarioSunPulse 2s ease-in-out infinite;
+}
+
+.scenario-rain .icon-cloud { fill: currentColor; stroke: none; }
+.scenario-rain .rain-drops { animation: scenarioRainFall 1.05s ease-in infinite; }
+.scenario-cut { animation: scenarioCutPulse 1.35s ease-in-out infinite; }
+.scenario-cut .cut-bolt { fill: currentColor; stroke: none; }
+.scenario-backup .battery-fill { fill: currentColor; stroke: none; transform-origin: center bottom; animation: scenarioBatteryFill 1.8s ease-in-out infinite; }
+.scenario-backup .battery-bolt { fill: var(--accent, #2588f5); stroke: none; }
+.scenario-evening .evening-sun-group {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: scenarioEveningFloat 2.4s ease-in-out infinite;
+}
+.scenario-evening .evening-sun,
+.scenario-evening .evening-rays,
+.scenario-evening .evening-horizon { fill: none; }
+.scenario-moon .moon-shape { fill: currentColor; stroke: none; }
+.scenario-moon .moon-star { fill: currentColor; stroke: none; animation: scenarioStarTwinkle 1.7s ease-in-out infinite; }
+
+@keyframes scenarioSunSpin { to { transform: rotate(360deg); } }
+@keyframes scenarioSunPulse { 50% { transform: scale(.82); opacity: .72; } }
+@keyframes scenarioRainFall { 0% { transform: translateY(-2px); opacity: .25; } 70%, 100% { transform: translateY(2px); opacity: 1; } }
+@keyframes scenarioCutPulse { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 transparent); } 45% { transform: scale(1.12); filter: drop-shadow(0 0 4px currentColor); } }
+@keyframes scenarioBatteryFill { 0%, 100% { transform: scaleY(.35); opacity: .55; } 50% { transform: scaleY(1); opacity: 1; } }
+@keyframes scenarioEveningFloat { 0%, 100% { transform: translateY(0); opacity: .82; } 50% { transform: translateY(-1px); opacity: 1; } }
+@keyframes scenarioStarTwinkle { 50% { transform: scale(.68); opacity: .45; } }
+
+/* The live level remains data-driven; only its blue light gently breathes. */
+.battery-unit:not(.low-charge) .battery-meter i {
+  animation: batteryBluePulse 1.65s ease-in-out infinite;
+}
+
+.battery-unit.low-charge .battery-meter i { animation: none; }
+
+@keyframes batteryBluePulse {
+  0%, 100% {
+    filter: brightness(.92) saturate(1);
+    box-shadow: 0 0 8px rgba(37, 136, 245, .58);
+  }
+  50% {
+    filter: brightness(1.32) saturate(1.28);
+    box-shadow: 0 0 17px rgba(75, 174, 255, .98), 0 0 27px rgba(37, 136, 245, .42);
+  }
+}
+
+@media (max-width: 1450px), (max-height: 800px) {
+  .visual-stage {
+    --inverter-y: 20.5%;
+    --battery-bottom: -4.7%;
+    --battery-h: 34%;
+    --house-y: 14.5%;
+    --house-h: 60%;
+  }
+
+  .source-pill {
+    height: 42px;
+    min-width: 145px;
+    padding: 0 14px;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 760;
+  }
+
+  .source-pill svg { width: 31px; height: 30px; }
+  .brand img { width: 220px; max-height: 44px; }
+  .stage-summary { left: 41%; right: 1.5%; bottom: 0; }
+  .stage-summary .info-card { min-height: 178px; padding: 14px 16px 11px; border-radius: 24px; }
+  .stage-summary .energy-summary { gap: 8px; }
+  .system-options { gap: 7px; }
+  .system-card { min-height: 54px; border-radius: 14px; }
+  .program-toggle { min-height: 42px; margin: 11px 0; }
+  .scenario-section { flex: 1 1 auto; min-height: 0; }
+  .scenario-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(51px, 1fr));
+    gap: 8px;
+  }
+  .scenario-button {
+    min-height: 51px;
+    padding: 7px 9px;
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    gap: 8px;
+    border-radius: 13px;
+  }
+  .scenario-button .scenario-icon { width: 34px; height: 34px; }
+  .scenario-check { width: 23px; height: 23px; font-size: 12px; }
+  .fan-assembly { bottom: 22%; }
+}
+
+/* A tall booth display keeps the four scenarios as full-width feature rows,
+   even when the viewport is narrower than 1450px. */
+@media (min-height: 801px) {
+  .scenario-section { flex: 1 1 auto; }
+  .scenario-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(62px, 1fr));
+    gap: 10px;
+  }
+  .scenario-button {
+    min-height: 62px;
+    padding: 10px 14px;
+    grid-template-columns: 42px minmax(0, 1fr) 28px;
+    gap: 12px;
+    border-radius: 16px;
+  }
+  .scenario-button .scenario-icon { width: 42px; height: 42px; }
+}
+
+/* Utility labels remain navy on every weather background. */
+.experience[data-weather="night"] .utilities > .utility-button,
+.experience[data-weather="cut"] .utilities > .utility-button,
+.experience[data-weather="backup"] .utilities > .utility-button,
+.experience[data-weather="night"] .language-switch button,
+.experience[data-weather="cut"] .language-switch button,
+.experience[data-weather="backup"] .language-switch button {
+  color: var(--navy);
+}
+
+.experience[data-weather="night"] .language-switch button.active,
+.experience[data-weather="cut"] .language-switch button.active,
+.experience[data-weather="backup"] .language-switch button.active {
+  color: #fff;
+}
+
+/* Full-screen booth sizing -------------------------------------------------
+   A 1080p display at 125% Windows scaling reports only about 864 CSS pixels
+   of height.  Use the live viewport and compress the fixed controls before
+   allowing the scenario grid to shrink, so every action stays inside the
+   panel in F11 mode. */
+.experience {
+  --booth-topbar-height: 86px;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.topbar { height: var(--booth-topbar-height); }
+
+.main-layout {
+  min-height: 0;
+  height: calc(100vh - var(--booth-topbar-height));
+  height: calc(100dvh - var(--booth-topbar-height));
+  grid-template-columns: minmax(0, 1fr) clamp(360px, 30.5vw, 640px);
+}
+
+.visual-area,
+.visual-stage,
+.control-panel { min-height: 0; }
+
+.control-panel {
+  max-height: 100%;
+  overscroll-behavior: contain;
+}
+
+/* On a genuinely tall fullscreen viewport, keep the four actions substantial
+   without allowing them to become oversized feature panels. */
+@media (min-height: 951px) {
+  .scenario-grid {
+    grid-template-rows: repeat(4, clamp(68px, 7.2vh, 78px));
+    align-content: space-evenly;
+  }
+
+  .scenario-button {
+    min-height: 68px;
+    max-height: 78px;
+    padding: 9px 14px;
+  }
+}
+
+/* Full-screen 1080p with 110–125% display scaling. */
+@media (max-height: 950px) {
+  .experience { --booth-topbar-height: 74px; }
+
+  .topbar { padding-top: 10px; padding-bottom: 6px; }
+  .main-layout { padding-top: 2px; padding-bottom: 12px; }
+
+  .control-panel {
+    padding: 16px 20px;
+    border-radius: 24px;
+  }
+
+  .panel-kicker { margin-bottom: 2px; font-size: 11px; }
+  .control-panel h2 { font-size: 32px; line-height: .98; }
+  .panel-intro { margin: 6px 0 9px; font-size: 13px; line-height: 1.25; }
+  .panel-rule { margin-bottom: 10px; }
+  .control-section h3 { margin-bottom: 6px; font-size: 11px; }
+
+  .system-options { gap: 6px; }
+  .system-card {
+    min-height: 49px;
+    padding: 5px 38px 5px 10px;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 9px;
+    border-radius: 13px;
+  }
+  .system-icon { width: 34px; height: 34px; }
+  .system-icon svg { width: 24px; height: 24px; }
+  .system-card strong { font-size: 15px; }
+  .system-card small { margin-top: 0; font-size: 12px; }
+
+  .program-toggle { min-height: 40px; margin: 9px 0; padding: 3px; }
+  .program-toggle button { padding: 6px; }
+
+  .scenario-section { flex: 1 1 auto; min-height: 0; }
+  .scenario-grid {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .scenario-button {
+    min-height: 0;
+    padding: 6px 10px;
+    grid-template-columns: 34px minmax(0, 1fr) 24px;
+    gap: 9px;
+    border-radius: 13px;
+  }
+  .scenario-button .scenario-icon { width: 34px; height: 34px; }
+  .scenario-button strong { font-size: 14px; }
+  .scenario-button small { margin-top: 1px; font-size: 10px; }
+  .scenario-check { width: 23px; height: 23px; font-size: 12px; }
+}
+
+/* Extra-safe profile for 1366×768-class displays and high browser zoom. */
+@media (max-height: 760px) {
+  .experience { --booth-topbar-height: 66px; }
+  .topbar { padding-top: 7px; padding-bottom: 4px; }
+  .main-layout { padding-bottom: 8px; }
+
+  .control-panel { padding: 11px 16px; border-radius: 21px; }
+  .panel-kicker { font-size: 9px; }
+  .control-panel h2 { font-size: 27px; }
+  .panel-intro { margin: 4px 0 6px; font-size: 11px; }
+  .panel-rule { margin-bottom: 7px; }
+  .control-section h3 { margin-bottom: 4px; font-size: 9.5px; }
+
+  .system-options { gap: 4px; }
+  .system-card {
+    min-height: 42px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+  .system-icon { width: 30px; height: 30px; border-radius: 8px; }
+  .system-icon svg { width: 21px; height: 21px; }
+  .system-card strong { font-size: 13px; }
+  .system-card small { font-size: 10.5px; }
+
+  .program-toggle { min-height: 34px; margin: 6px 0; }
+  .program-toggle button { font-size: 10px; }
+  .scenario-grid { gap: 5px; }
+  .scenario-button {
+    grid-template-columns: 30px minmax(0, 1fr) 21px;
+    padding: 4px 8px;
+    gap: 7px;
+  }
+  .scenario-button .scenario-icon { width: 30px; height: 30px; }
+  .scenario-button strong { font-size: 12px; }
+  .scenario-button small { font-size: 9px; }
+  .scenario-check { width: 20px; height: 20px; font-size: 11px; }
+}
+
+/* Final panel rhythm: the shell shares the stage's lower baseline while the
+   reference-card button proportions remain fixed at every viewport height. */
+.control-panel {
+  align-self: stretch;
+  height: 100%;
+}
+
+.scenario-section { flex: 0 0 auto; }
+
+.system-card,
+.scenario-grid {
+  --shared-control-height: clamp(58px, 7.8vh, 84px);
+}
+
+.system-card {
+  height: var(--shared-control-height);
+  min-height: 0;
+}
+
+.scenario-grid {
+  flex: 0 0 auto;
+  grid-template-rows: repeat(4, var(--shared-control-height));
+  align-content: start;
+  gap: clamp(7px, 1vh, 10px);
+}
+
+.scenario-button {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dynamic-wiring .flow { animation-duration: 2.2s; }
+  .fan-assembly, .fan-rotor { animation: none; }
+  .scenario-glyph, .scenario-glyph * { animation: none !important; }
+  .battery-meter i { animation: none !important; }
+}
