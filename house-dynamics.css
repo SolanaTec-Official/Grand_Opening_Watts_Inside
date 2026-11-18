@@ -70,9 +70,6 @@
 .floor-light {
   position: absolute;
   z-index: 4;
-  left: 41.6%;
-  width: 17.5%;
-  height: .9%;
   border-radius: 999px;
   background: linear-gradient(90deg, #fff7d5, #fffef2 48%, #ffe39c);
   box-shadow:
@@ -83,8 +80,24 @@
   transition: opacity .45s ease, box-shadow .45s ease;
 }
 
-.bedroom-light { top: 25.9%; }
-.living-light { top: 62.35%; }
+/*
+ * Match the illuminated diffusers in house-two-storey-v4.png (1199 x 1312).
+ * The two fixtures have slightly different source bounds, so keep their
+ * coordinates independent instead of sharing an approximate geometry.
+ */
+.bedroom-light {
+  left: 40.37%; /* x: 484..702 */
+  top: 26.68%;  /* y: 350..355 */
+  width: 18.27%;
+  height: .46%;
+}
+
+.living-light {
+  left: 42.04%; /* x: 504..706 */
+  top: 63.95%;  /* y: 839..843 */
+  width: 16.93%;
+  height: .38%;
+}
 
 /* The black television in the render becomes a live display. */
 .tv-screen {
