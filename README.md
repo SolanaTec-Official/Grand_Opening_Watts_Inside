@@ -1,4 +1,4 @@
-# Watt's Inside
+# Watt's Inside V2 — Booth 08
 
 This is the cleaned, display-adaptive edition of the Booth 08 interactive. It is a separate copy; the previous `Watts-Inside-Booth-08` folder is unchanged.
 

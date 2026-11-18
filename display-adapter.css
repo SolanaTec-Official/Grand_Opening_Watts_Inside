@@ -130,7 +130,7 @@ body.kiosk-mode .control-panel {
 body.kiosk-mode .visual-stage {
   --left-assembly-center: 15.85%;
   --solar-x: var(--left-assembly-center);
-  --grid-x: 29.1%;
+  --grid-x: 25.6%;
   --inverter-x: calc(var(--left-assembly-center) - 11.55%);
   --inverter-y: 21.5%;
   --inverter-w: 22%;

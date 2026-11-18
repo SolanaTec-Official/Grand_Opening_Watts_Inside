@@ -9,7 +9,7 @@
 .visual-stage {
   --left-assembly-center: 15.85%;
   --solar-x: var(--left-assembly-center);
-  --grid-x: 29.1%;
+  --grid-x: 25.6%;
 
   --inverter-x: calc(var(--left-assembly-center) - 11.55%);
   --inverter-y: 21.5%;
@@ -224,12 +224,43 @@
   height: var(--inverter-h);
 }
 
-/* Preserve the original inverter face and its single factory seam, while
+/* Preserve the hybrid inverter face and its single factory seam, while
    removing only the five black cable glands below the casing. */
-.inverter-image {
+.inverter-image-hybrid {
   /* The image is object-fit inside a taller stage box.  This percentage also
      removes that fitted lower padding, then stops at the white casing edge. */
   clip-path: inset(0 0 13.5% 0);
+}
+
+/* The approved single-body render is exclusive to the On-grid selection. */
+.inverter-image-ongrid {
+  display: none;
+  clip-path: none;
+  transform: scale(.9);
+  transform-origin: 50% 50%;
+}
+
+.experience[data-system="ongrid"] .inverter-image-hybrid {
+  display: none;
+}
+
+.experience[data-system="ongrid"] .inverter-image-ongrid {
+  display: block;
+}
+
+/* The on-grid artwork already contains its high-resolution Solis wordmark. */
+.experience[data-system="ongrid"] .solis-mark {
+  display: none;
+}
+
+/* The visible on-grid casing spans 15.3%–84.0% of its source canvas. After
+   the .9 scale, its horizontal midpoint sits at 49.7% of the stage box. */
+.experience[data-system="ongrid"] .inverter .device-side-label {
+  left: 49.7%;
+  right: auto;
+  top: 44.5%;
+  width: max-content;
+  transform: translateX(-50%);
 }
 
 .inverter::before,

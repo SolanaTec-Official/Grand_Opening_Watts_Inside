@@ -25,12 +25,12 @@
       solarPV: 'Solar PV', grid: 'TNB Grid', day: 'Day', night: 'Night', lamp: 'Lamp', connected: 'Connected',
       panelKicker: 'BOOTH 08 EXPERIENCE', panelIntro: 'Follow the power from sunlight to storage, grid and home.',
       choose: 'CHOOSE YOUR SYSTEM', tryScenario: 'TRY A SCENARIO', selected: 'SELECTED', powerCutLabel: 'POWER CUT',
-      ongrid: 'On-grid', ongridSub: 'Solar only', hybrid: 'Hybrid', hybridSub: 'Battery-ready', full: 'Full backup', fullSub: 'Battery + ATS',
+      ongrid: 'On-grid', ongridSub: 'Solar only', hybrid: 'Hybrid', hybridSub: 'Battery-ready', full: 'Hybrid + Backup', fullSub: 'Battery + ATS',
       inverter: 'HYBRID INVERTER', distribution: 'DISTRIBUTION<br>BOARD', light: 'LIGHT', fan: 'FAN',
       solar: 'SOLAR', battery: 'BATTERY', home: 'HOME', flowEyebrow: 'LIVE POWER FLOW', homePowered: 'HOME SUPPLY', solarGoes: 'SOLAR FLOW',
       notInstalled: 'Not installed', ready: 'Battery-ready', standby: 'STANDBY', charging: 'CHARGING', supplying: 'SUPPLYING', fullState: 'FULL', sourceA: 'SOURCE A', sourceB: 'SOURCE B',
       atsBackup: 'Solis Backup', sourceANormal: 'SOURCE A · NORMAL', sourceBBackup: 'SOURCE B · BACKUP', gridOff: 'GRID OFF',
-      backupUnavailable: 'Requires Full backup',
+      backupUnavailable: 'Requires Hybrid + Backup',
       scenarios: {
         sunny: ['Sunny Day', 'Solar > load · export', '☀'], rain: ['Rainy Day', 'Low solar · mostly TNB', '☁'],
         evening: ['Evening Peak', 'Battery + TNB together', '◒'], late: ['Late Night', 'Battery low · TNB only', '☾'],
@@ -49,12 +49,12 @@
       solarPV: '太阳能光伏', grid: '国家电网', day: '白天', night: '夜间', lamp: '灯具', connected: '已连接',
       panelKicker: '08号展位互动体验', panelIntro: '观察电力如何从阳光流向储能、电网与家庭。',
       choose: '选择您的系统', tryScenario: '选择一个情境', selected: '已选择', powerCutLabel: '停电',
-      ongrid: '并网系统', ongridSub: '仅太阳能', hybrid: '混合逆变器', hybridSub: '可加装电池', full: '完整后备系统', fullSub: '电池 + ATS',
+      ongrid: '并网系统', ongridSub: '仅太阳能', hybrid: '混合逆变器', hybridSub: '可加装电池', full: '混合 + 后备', fullSub: '电池 + ATS',
       inverter: '混合型逆变器', distribution: '配电箱', light: '灯光', fan: '风扇',
       solar: '太阳能', battery: '电池', home: '家庭', flowEyebrow: '实时电力流向', homePowered: '家庭供电', solarGoes: '太阳能流向',
       notInstalled: '尚未安装', ready: '可加装电池', standby: '待机', charging: '充电中', supplying: '供电中', fullState: '已充满', sourceA: '电源 A', sourceB: '电源 B',
       atsBackup: 'Solis 后备电源', sourceANormal: '电源 A · 正常', sourceBBackup: '电源 B · 后备', gridOff: '电网中断',
-      backupUnavailable: '需选择完整后备系统',
+      backupUnavailable: '需选择混合 + 后备系统',
       scenarios: {
         sunny: ['晴天', '太阳能充足 · 可输出', '☀'], rain: ['雨天', '太阳能较低 · 电网补充', '☁'],
         evening: ['傍晚高峰', '电池与电网共同供电', '◒'], late: ['深夜', '电池保留 · 电网供电', '☾'],
@@ -114,6 +114,7 @@
   var cableContactOverlap = 3;
   var assetBounds = {
     inverter: { left: .052, top: .070, right: .998, bottom: .908 },
+    inverterOnGrid: { left: .153, top: .043, right: .840, bottom: .920 },
     ats: { left: .179, top: .187, right: .885, bottom: .834 },
     distribution: { left: .136, top: .180, right: .921, bottom: .808 },
     battery: { left: .121, top: .023, right: .928, bottom: .923 },
@@ -284,10 +285,12 @@
 
     var solarOut = terminal(solarSource, 'bottom', .5);
     var gridOut = terminal(gridSource, 'bottom', .5);
-    var inverterSolar = visibleTerminal(inverter, '.inverter-image', assetBounds.inverter, 'top', .5);
-    var inverterRight = visibleTerminal(inverter, '.inverter-image', assetBounds.inverter, 'right', .5);
-    var inverterBattery = visibleTerminal(inverter, '.inverter-image', assetBounds.inverter, 'bottom', .5);
-    var inverterBackup = visibleTerminal(inverter, '.inverter-image', assetBounds.inverter, 'right', .88);
+    var inverterImageSelector = state.system === 'ongrid' ? '.inverter-image-ongrid' : '.inverter-image-hybrid';
+    var inverterBounds = state.system === 'ongrid' ? assetBounds.inverterOnGrid : assetBounds.inverter;
+    var inverterSolar = visibleTerminal(inverter, inverterImageSelector, inverterBounds, 'top', .5);
+    var inverterRight = visibleTerminal(inverter, inverterImageSelector, inverterBounds, 'right', .5);
+    var inverterBattery = visibleTerminal(inverter, inverterImageSelector, inverterBounds, 'bottom', .5);
+    var inverterBackup = visibleTerminal(inverter, inverterImageSelector, inverterBounds, 'right', .88);
     var atsIn = terminal(atsFace || ats, 'left', .54);
     var atsOut = terminal(atsFace || ats, 'right', .54);
     var atsBackup = terminal(atsFace || ats, 'bottom', .5);
